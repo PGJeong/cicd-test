@@ -121,7 +121,7 @@ jobs:
         run: |
           ssh \
             -i ~/.ssh/insite-key.pem \
-            ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
+            ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << EOF
 
               set -e
 
@@ -129,23 +129,21 @@ jobs:
 
               git pull
 
-              aws ecr get-login-password --region ap-northeast-2 \
+              aws ecr get-login-password --region ${AWS_REGION} \
               | docker login \
                 --username AWS \
-                --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.ap-northeast-2.amazonaws.com
+                --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com
 
               sed -i \
-                's|^BACKEND_IMAGE=.*|BACKEND_IMAGE=${AWS_ACCOUNT_ID}.dkr.ecr.ap-northeast-2.amazonaws.com/insite-backend:latest|' \
+                "s|^BACKEND_IMAGE=.*|BACKEND_IMAGE=${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${BACKEND_REPOSITORY}:latest|" \
                 .env
 
               sed -i \
-                's|^FRONTEND_IMAGE=.*|FRONTEND_IMAGE=${AWS_ACCOUNT_ID}.dkr.ecr.ap-northeast-2.amazonaws.com/insite-frontend:latest|' \
+                "s|^FRONTEND_IMAGE=.*|FRONTEND_IMAGE=${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${FRONTEND_REPOSITORY}:latest|" \
                 .env
 
               docker compose pull
-
               docker compose up -d
-
               docker compose ps
 
           EOF
