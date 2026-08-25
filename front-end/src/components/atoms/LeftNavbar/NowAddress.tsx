@@ -181,7 +181,7 @@ export default function NowAddress({ onAddressClick, onAddressChange }: NowAddre
     <div className="w-full bg-white p-4">
       {/* 헤더 영역 */}
       <div className="mb-3">
-        <span className="text-sm px-2">지금 보고 계신 곳은</span>
+        <span className="text-sm px-2">"CI/CD 테스트 성공"</span>
       </div>
       
       {/* 주소 표시 영역 */}
