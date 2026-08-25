@@ -75,15 +75,16 @@ jooq {
 	version = jooqVersion
 	configurations {
 		main {
+			generateSchemaSourceOnCompilation = false
+
 			generationTool {
 				logging = org.jooq.meta.jaxb.Logging.INFO
 
 				jdbc {
-					driver   = 'com.mysql.cj.jdbc.Driver'
-					// 환경변수 없으면 로컬 기본값 사용 (원하는 값으로 교체)
-					url      = 'jdbc:mysql://ssafy-mysql-db.mysql.database.azure.com:3306/s13p21e203?sslMode=REQUIRED'
-					user     = 'S13P21E203'
-					password = 'eOKIKdoBQr'
+    				driver = 'com.mysql.cj.jdbc.Driver'
+    				url = System.getenv('JOOQ_DB_URL') ?: ''
+    				user = System.getenv('JOOQ_DB_USERNAME') ?: ''
+    				password = System.getenv('JOOQ_DB_PASSWORD') ?: ''
 				}
 
 				generator {
@@ -117,10 +118,8 @@ jooq {
 					}
 
 					target {
-						packageName = 'com.ssafy.insite.data.jooq.codegen'
-						directory = project.layout.buildDirectory
-								.dir('generated-src/jooq')
-								.get().asFile.absolutePath
+    					packageName = 'com.ssafy.insite.data.jooq.codegen'
+    					directory = "${projectDir}/src/generated/jooq"
 					}
 
 					strategy {
@@ -134,5 +133,4 @@ jooq {
 }
 
 // 생성된 소스 디렉터리를 main 소스셋에 등록
-sourceSets.main.java.srcDir(
-		project.layout.buildDirectory.dir('generated-src/jooq').get())
+sourceSets.main.java.srcDir('src/generated/jooq')
