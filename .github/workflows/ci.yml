@@ -98,7 +98,7 @@ jobs:
           docker push $ECR_REGISTRY/$FRONTEND_REPOSITORY:latest
 
 
-    deploy:
+  deploy:
     if: github.event_name == 'push'
     needs:
       - push-images
