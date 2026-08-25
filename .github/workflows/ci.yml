@@ -23,4 +23,18 @@ jobs:
             --no-cache \
             -t insite-backend:ci \
             ./back-end
-            
+
+
+  frontend-build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Build frontend Docker image
+        run: |
+          docker build \
+            --no-cache \
+            -t insite-frontend:ci \
+            ./front-end
