@@ -9,7 +9,13 @@ on:
     branches:
       - main
 
+env:
+  AWS_REGION: ap-northeast-2
+  BACKEND_REPOSITORY: insite-backend
+  FRONTEND_REPOSITORY: insite-frontend
+
 jobs:
+
   backend-build:
     runs-on: ubuntu-latest
 
@@ -38,3 +44,56 @@ jobs:
             --no-cache \
             -t insite-frontend:ci \
             ./front-end
+
+
+  push-images:
+    if: github.event_name == 'push'
+    needs:
+      - backend-build
+      - frontend-build
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build and push backend image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
+
+        run: |
+          docker build \
+            -t $ECR_REGISTRY/$BACKEND_REPOSITORY:$IMAGE_TAG \
+            -t $ECR_REGISTRY/$BACKEND_REPOSITORY:latest \
+            ./back-end
+
+          docker push $ECR_REGISTRY/$BACKEND_REPOSITORY:$IMAGE_TAG
+          docker push $ECR_REGISTRY/$BACKEND_REPOSITORY:latest
+
+      - name: Build and push frontend image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
+
+        run: |
+          docker build \
+            -t $ECR_REGISTRY/$FRONTEND_REPOSITORY:$IMAGE_TAG \
+            -t $ECR_REGISTRY/$FRONTEND_REPOSITORY:latest \
+            ./front-end
+
+          docker push $ECR_REGISTRY/$FRONTEND_REPOSITORY:$IMAGE_TAG
+          docker push $ECR_REGISTRY/$FRONTEND_REPOSITORY:latest
+          
