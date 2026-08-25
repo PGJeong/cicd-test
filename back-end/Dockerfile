@@ -5,8 +5,8 @@ COPY . .
 RUN gradle build -x test
 
 # 2단계: 실행 스테이지
-FROM openjdk:17-jdk-slim
-WORKDIR /appgit
+FROM eclipse-temurin:17-jre-jammy
+WORKDIR /app
 COPY --from=builder /app/build/libs/*.jar app.jar
 EXPOSE 8080
 ENTRYPOINT ["java", "-jar", "app.jar"]
