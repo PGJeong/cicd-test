@@ -11,6 +11,7 @@ on:
 
 env:
   AWS_REGION: ap-northeast-2
+  AWS_ACCOUNT_ID: ${{ vars.AWS_ACCOUNT_ID }}
   BACKEND_REPOSITORY: insite-backend
   FRONTEND_REPOSITORY: insite-frontend
 
@@ -131,14 +132,14 @@ jobs:
               aws ecr get-login-password --region ap-northeast-2 \
               | docker login \
                 --username AWS \
-                --password-stdin 147161676907.dkr.ecr.ap-northeast-2.amazonaws.com
+                --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.ap-northeast-2.amazonaws.com
 
               sed -i \
-                's|^BACKEND_IMAGE=.*|BACKEND_IMAGE=147161676907.dkr.ecr.ap-northeast-2.amazonaws.com/insite-backend:latest|' \
+                's|^BACKEND_IMAGE=.*|BACKEND_IMAGE=${AWS_ACCOUNT_ID}.dkr.ecr.ap-northeast-2.amazonaws.com/insite-backend:latest|' \
                 .env
 
               sed -i \
-                's|^FRONTEND_IMAGE=.*|FRONTEND_IMAGE=147161676907.dkr.ecr.ap-northeast-2.amazonaws.com/insite-frontend:latest|' \
+                's|^FRONTEND_IMAGE=.*|FRONTEND_IMAGE=${AWS_ACCOUNT_ID}.dkr.ecr.ap-northeast-2.amazonaws.com/insite-frontend:latest|' \
                 .env
 
               docker compose pull
